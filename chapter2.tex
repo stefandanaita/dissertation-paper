@@ -1,0 +1,135 @@
+\chapter{Literature review}
+
+\section{Related working systems}
+
+There are some similar systems on the market, each one with its own attributes and features, but all of them with a clear goal - tracking TV series. In the following paragraphs some of these systems will be described, emphasising the TV shows database used, the type of server and the complexity of the recommender system.
+
+\subsection{Trakt.tv}
+
+Trakt.tv \cite{2} is the most popular media tracking system on the market. However, many people might find it too elaborate, hence confusing, for their basic routine. This system is more suitable for those viewers who posses a Home Theatre PC because it plugs into Plex and XBMC, but for the majority of users, these complex features become irrelevant because the user interface is not very straightforward \textit{(fig. \ref{fig:traktshowpage})}.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1.0\textwidth]{figures/trakt_showpage}
+\caption{Trakt.tv TV Show's main page \newline Source: https://trakt.tv/}
+\label{fig:traktshowpage}
+\end{figure}
+
+This system uses NodeJS as the web server and this makes it quite fast, taking in consideration the large amount of features and information loaded on the website's pages. When it comes to the database, Trakt provides tracking for both TV shows and movies. It imports the movies database from themoviedb.org \cite{3} and the series from thetvdb.org \cite{4}, two of the most popular user-edited media databases on the Internet with both of them providing free of use APIs. However, TheTVDB provides an XML output, as opposed to TheMovieDB which has a more complex and SSL secured JSON API.
+
+\begin{wrapfigure}{l}{0.5\textwidth}
+\centering
+\includegraphics[width=0.5\textwidth]{figures/trakt_recommendations}
+\caption{Trakt.tv Recommendations \newline Source: https://trakt.tv/}
+\vspace{-1em}
+\label{fig:traktrecommender}
+\end{wrapfigure}
+
+As for the recommender system \textit{(fig. \ref{fig:traktrecommender})}, Trakt does not have an advanced algorithm, like Netflix does, for instance. Trakt's recommender system is product-centric, split in two categories - trending and popular TV Series. The trending list is built based on the current number of viewers of each show. However, this kind of sort fluctuates heavily during very short periods of time. For example, a newly released episode will remain in the top of the trending list for the following couple of hours, even if it is a new show, one with lower ratings or with not so many followers. As a consequence, the trend list clearly becomes unreliable, as it is mostly based on the episode or show release date, as opposed to what the user usually watches. Regarding the other category, the popularity of the shows is calculated based on two variables - the number of users following a certain show and the rating average. It has been proven, especially by Netflix that, for the best user experience, recommendations should be user-centric, based more on the viewer's preferences, rather than the community's habits and opinions.
+
+Consequently,as found in \cite{Netflix} it is possible for two different Netflix users to see different ratings for the same movie. The rating is not computed simply as the average of ratings given by individual users, as this will give rise to bias. For example, a comedy rated 5 stars would be in the top of recommendations list for someone who is only watching thrillers, only for the fact that it has maximum rating, not taking into account personal preferences. Hence, Netflix groups users with similar viewing tastes together and makes predictions based on this. For instance, when an user sees a show with high rating, it means that people in the same category and with similar tastes as his tend to like that show. 
+
+
+\subsection{EpisodeCalendar.com}
+
+EpisodeCalendar.com \cite{5} is another popular show tracking system, known for its simplicity and intuitive interface \textit{(fig. \ref{fig:episodecalendarcalendar})}. It does not require the user to be very computer literate in order to use the system at its full capacity and this makes from EpisodeCalendar a grand rival for the more advanced system, Trakt.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1.0\textwidth]{figures/episodecalendar_calendar}
+\caption{Episode Calendar Interface \newline Source: https://episodecalendar.com/en/calendar}
+\label{fig:episodecalendarcalendar}
+\end{figure}
+
+However, if there is a chapter where it completely lacks of any functionality, it is the automatisation. Besides the notifications of the achievements which are pushed to the user and the self-updated TV Shows, everything else requires interaction with the user. This does not represent a problem for a person with plenty of spare time, but for a 9 to 5 employee, spending time to mark each episode as seen, search for recommendations or even change the avatar by creating an account on gravatar.com, a third-party website, could represent the reason for giving up using the system once and for all.
+
+When it comes to the EpisodeCalendar's database, it is built the same as Trakt.tv - it imports the shows from TheTVDB.org through an XML API. However, this system is developed in Rails, a well-known Ruby framework used for web applications. As opposed to Trakt, which is developed in NodeJS, a very fast web server because of the asynchronous I/O, and has the same load time on most of its pages, EpisodeCalendar loads slower as the number of online users increases or the page contains lots of dynamically generated information.
+
+The recommender system \textit{(fig. \ref{fig:episodecalendarrecommendations})} is a bit different compared to Trakt, but still pretty unreliable because it is, again, product-centric and based only on system's internal information. The recommendations are separated in categories (drama, crime, comedy and others) and the computation is based on the total number of followers. However, this method of generating the recommendations does not reflect the actual evolution of the series. For example, after a large number of seasons, a show might become boring, but it would still be recommended because of the already gained large number of followers. The same thing happens when it comes to the trends - calculations are made based on new followers during the period of a month.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1.0\textwidth]{figures/episodecalendar_recommendations}
+\caption{Episode Calendar Interface \newline Source: https://episodecalendar.com/en/calendar}
+\label{fig:episodecalendarrecommendations}
+\end{figure}
+
+Moreover, giving tops as recommendations instead of certain show titles lets the user wonder which one should start watching, which means that the main objective of the recommender system is not accomplished.
+
+These are two of the most important and popular existing systems, but there are lots of others available on the Internet, most of them being web applications. What none of them provides is a group of key features together - simple and intuitive interface, automatisation for the best user experience within the smallest amount of time spent to keep the calendar up to date and an advanced recommender system, based more on the person itself, rather than the community.
+
+\section{Studies over recommenders}
+
+The advanced and smart recommendations are one of the most important parts of the system in discussion, along with the automation and the cross-platform availability. Therefore, this section must be well researched and even better coded, for a great user experience and good anticipations of viewer's preferences.
+
+By studying a short history of the development of recommender systems, the "TV Advisor" \cite{6} seems to be amongst the first ones existent on the market - being implemented in 1998. 
+As the number of TV programmes increased so rapidly over a short period of time, the need of such a system became vital. The research started by comparing the advantages and disadvantages of implicit profiling - watching habits, with those of explicit profiling - giving ratings. The former is more likely to random noise, since in the case of television, more members of the same family may use the same device and as a result the latter was chosen as the starting point.
+
+After a thorough work, the researchers have concluded that having a big set of TV programs and viewer's preferences based on likes and dislikes could be sufficient for good and sensible recommendations. Yet, another conclusion they came to was that giving a single wrong recommendation is not acceptable, so the recommender's precision is the most important factor in the equation. Moreover, the set of suggestions cannot be empty at any point. However, the TV Advisor's selection database is limited to the TV programs available over a limited period of a few weeks and the probability of getting no matches between viewer's preferences and the available programs list is higher. However, even with the explicit profiling, the question of how to identify the different house members using the same device still needs to be addressed.
+
+\begin{wrapfigure}{R}{0.45\textwidth}
+\centering
+\includegraphics[width=0.45\textwidth]{figures/recommender_working_scheme}
+\caption{Recommender working scheme \newline Source: "Towards TV Recommender System: \newline Experiments with User Modeling"}
+\vspace{-1em}
+\label{fig:recommenderworkingscheme}
+\end{wrapfigure}
+
+The second system researched is another TV-only recommender system which provides suggestions by calculating the similarity between the previously watched programs and the available list of TV programs. As in paper \cite{14} the system computes the scalar product between Pij (the vector of TV program's Pi features) and α, the user's model vector. This system managed to achieve an 87\% success rate when it was given the previous 25 TV programs watched. As the success rate of the algorithm increases for larger Pij vectors, this way of getting recommendations could represent a good solution to our system, taking into consideration that the previously watched vector's length does not need to have an upper limit and the TV Series' pool is also very large. \textit{Figure \ref{fig:recommenderworkingscheme}} shows the cycle of actions this system takes to find the best program recommendations.
+
+Another TV program recommender, "Smart Electronic Program Guide" \cite{7}, enables users to search trough a TV database. In their research, the search criteria has been divided into 7 categories, named 'bracelets': day of the week, time of the
+day, program genres, channels, keywords, user profile
+names and saved searches. As opposed to the TV Advisor, this method uses implicit profiling, hence no implicit user interaction is required. This implicit profile is built from the viewing history and uses the Bayesian classifier to deliver the right suggestions to the viewer. The algorithm uses a 2-class Bayesian model and makes the assumption that if the user has seen a program, he liked it, otherwise he disliked it. In this algorithm, the user profile represents a collection of attributes or features along with a count of how many times that attribute occurs in the viewed (liked) shows. To continue, the algorithm computes the probability of a certain program to belong to one of the two classes, and, therefore, the probability that, conditional on the viewing history, the user's attributes will be present in a new show, hence, the probability that the viewer will or will not like that program. This system runs on the premise of ‘zero explicit interaction with the user', but as the developers of the first system presented, TV Advisor, concluded, precision might be more important at the end of the day and users might prefer to manually input some information for a better recommendations rate.
+
+Three researchers from Carnegie Mellon University divide recommenders in two types in their research \cite{8} - implicit, represented by those recommenders which compute the final suggestions based on the user's watching history, and explicit recommenders which are based on explicit interaction with its users. They go further and split the recommenders' users in three models, depending on how much they want to interact with the system in order to get the expected suggestions:
+
+\begin{itemize}
+  \item Do it for me - this category of users wants their recommender to be fully implicit. They do not want to give any explicit input to the algorithm and do not care about how it works as long as the recommendations are delivered as expected;
+  \item Let's do it together - this model wants to partially control the recommender's output. Ideally, they want to be allowed to set some parameters, but do not want to spend any considerable amount of time setting everything up;
+  \item Let me drive - these users want full control to the recommender. However, giving these permissions to the user may lead to invalid recommendations due to the lack of impartiality from the user.
+\end{itemize}
+
+The images from \textit{Figure \ref{fig:explicitrecommenders}} show how the explicit recommender interface would look like. It allows the users to set the parameters a value between 0 and 100 or leave the default impartial value of 50.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1.0\textwidth]{figures/explicit_recommenders}
+\caption{Explicit recommender interfaces \newline
+Source: "Personalization: Improving Ease-of-Use, Trust and Accuracy of a TV Show"}
+\label{fig:explicitrecommenders}
+\end{figure}
+
+\section{TV watching habits}
+
+According to Civic Science in a study from 2014 \cite{9} which got over 9000 responses, almost a half from the United States TV viewers prefer to watch their programs or shows live, 27\% on their own TV and the rest via online streaming or by other means. \textit{Figure \ref{fig:tvhabitsage}} shows the difference between U.S. viewers preferences.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1.0\textwidth]{figures/tv_habits_age}
+\caption{TV watching habits, different age groups \newline Source: Civic Science}
+\label{fig:tvhabitsage}
+\end{figure}
+
+Therefore, a reliable tracking system is useful for more than a half of the U.S. viewers, as for the recommendations, the percentage is even higher if the system provides good suggestions.
+
+\textit{Figure \ref{fig:tvhabitsgeneral}} shows that before the age of 35, most people prefer to watch their favourite shows on streams, whereas after 45 years, watching live is the main option. Taking into consideration that the number of people watching the TV is getting lower and lower in favour of recordings and online streams, these values are very likely to become similar for every age group in a few decades.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1.0\textwidth]{figures/tv_habits_general}
+\caption{TV watching habits, general statistic \newline Source: Civic Science}
+\label{fig:tvhabitsgeneral}
+\end{figure}
+
+The same study contains statistics about which viewers segments use their digital devices and stay up to date with the latest technology available.
+
+\textit{Figure \ref{fig:tvhabitstech}} shows that, besides owning an eReader, those viewers who prefer watching their programs or shows via online streaming are leading in the other 7 criteria.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1.0\textwidth]{figures/tv_habits_tech}
+\caption{TV watching habits, general statistic \newline Source: Civic Science}
+\label{fig:tvhabitstech}
+\end{figure}
+
+As our system requires the user to own at least a mobile phone, but preferably a computer and, for the best user experience, implies to watch shows or movies on their digital devices, the former statistic presented proves that our public target should be that segment of viewers watching online streams, rather than live shows on their own TV.

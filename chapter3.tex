@@ -1,0 +1,190 @@
+\chapter{Requirements \& analysis}\label{3}
+
+In this chapter, we outline the objectives of the project as well as the requirements of some specific features which are expected to be delivered.
+
+In order to be able to develop a successful solution and then evaluate it, the project requirements need to be divided into smaller, more specific and achievable pieces. The project requirements are presented in the following tables, each of them having been assigned an importance factor - M - mandatory, D - desirable, O - optional.
+
+\label{functional-requirements-table}
+\begin{tabularx}{\textwidth}{|c|X|c|X|}
+\caption{Functional requirements table}
+ \hline
+ \multicolumn{3}{|c|}{FUNCTIONAL REQUIREMENTS}                                                                                                                           \\ \hline
+Req. ID & \multicolumn{1}{c|}{Description}                                                                                                                   & Priority \\ \hline
+1       & \multicolumn{2}{l|}{Database}                                                                                                                                 \\ \hline
+1.1     & Automatically import the TV Shows information                                                                                                      & M        \\ \hline
+1.2     & TV series database is self-updating at a certain period of time in a fast and efficient way                                                        & M        \\ \hline
+1.3     & Users' private information is properly encrypted                                                                                                   & M        \\ \hline
+2       & \multicolumn{2}{l|}{Web Server}                                                                                                                               \\ \hline
+2.1     & Recognises any TV Show from the database                                                                                                           & M        \\ \hline
+2.2     & If a TV show is not recognised, a check of updates test will be automatically run                                                                  & M        \\ \hline
+2.3     & Allows users to login with social media accounts                                                                                                   & M        \\ \hline
+2.4     & Notifications through the E-mail                                                                                                                   & O        \\ \hline
+2.5     & Personal importable Shows calendar                                                                                                                 & O        \\ \hline
+2.6     & Possibility to add series that are not released yet to a personal "To watch" list                                                                  & D        \\ \hline
+2.7     & Friends system                                                                                                                                     & D        \\ \hline
+2.8     & Advanced search feature (auto-input)                                                                                                               & D        \\ \hline
+2.9     & Advanced rating system (episode average, show cast)                                                                                                & M        \\ \hline
+3       & \multicolumn{2}{l|}{Recommender system}                                                                                                                       \\ \hline
+3.1     & Provide individual recommendations                                                                                                                 & M        \\ \hline
+3.2     & Adjust recommendations depending on the time of the day and previous watching habits                                                               & O        \\ \hline
+3.3     & Adjust recommendations based on your friends' watching list and ratings                                                                            & D        \\ \hline
+3.4     & Ability to interact with the recommender (users can set their own scores to certain shows, actors and others)                                      & D        \\ \hline
+4       & \multicolumn{2}{l|}{General functionality}                                                                                                                    \\ \hline
+4.1     & Provide an API available to the public and fellow developers to be able to create their own applications using our database and recommender system & O        \\ \hline
+\end{tabularx}
+
+\label{non-functional-requirements-table}
+\begin{tabularx}{\textwidth}{|c|X|c|X|}
+\caption{Non-Functional requirements table}
+\hline
+\multicolumn{3}{|c|}{NON-FUNCTIONAL REQUIREMENTS}                                    \\ \hline
+Req. ID    & \multicolumn{1}{c|}{Description}                             & Priority \\ \hline
+\textbf{1} & \multicolumn{2}{l|}{\textbf{General}}                                   \\ \hline
+1.1        & Readable and commented code                                  & M        \\ \hline
+1.2        & Re-usable code                                               & M        \\ \hline
+\textbf{2} & \multicolumn{2}{l|}{\textbf{Reliability}}                               \\ \hline
+2.1        & Developer team notifications in case of crashes or downtime  & M        \\ \hline
+2.2        & Users notifications when the system is back online           & M        \\ \hline
+\textbf{3} & \multicolumn{2}{l|}{\textbf{Efficiency}}                                \\ \hline
+3.1        & Minimul waiting time for the API response                    & O        \\ \hline
+3.2        & Schedule activities depending on the application traffic     & O        \\ \hline
+3.3        & Number of API requests sent to the third party API minimised & D        \\ \hline
+\end{tabularx}
+
+\section{Information gathering and storage}
+
+The information required for this system to process and deliver the right output to the end-user raises two important problems - what should be the source providing the shows and how to store the large amount of data which is increasing by every new episode released and every new user registered.
+
+\subsection{TV Shows import source}
+
+Unfortunately, the options for the TV Series sources are very limited, the only possible websites being TheTVDB.org and TheMovieDB.org because both are updated on a daily basis, do not have downtime and provide reliable information.
+
+TheTVDB.org \cite{4} is a completely free of use and constantly updated database which contains the majority of the shows, including anime series. According to their website, there are over 57000 registered series with over 1.85 millions episodes, numbers that are constantly increasing as it is a community driven database.
+
+\begin{wrapfigure}{r}{0.45\textwidth}
+\centering
+\includegraphics[width=0.45\textwidth]{figures/tvdb_stats}
+\caption{TheTVDB Stats \newline Source: http://thetvdb.com/}
+\vspace{-1em}
+\label{fig:tvdbstats}
+\end{wrapfigure}
+
+TheTVDB provides a full XML API which, according to their website is currently being used by more than 25000 applications. The API provides methods to get the series and the episodes, as well as a method to keep the whole system up to date. This method avoids getting duplicate entries in the database and saves time by adding only the inexistent new series or episodes instead of going episode by episode through the whole database to check for missing entries.
+
+The other option is TheMovieDB.org \cite{3}, a more complex and with many new features API. One of the biggest advantages is that it provides more detailed information for each show compared to TheTVDB - full cast for the show with detailed profile of each actor, posters, guests list for each episode and countless other available functions - credits, show rating, top rated shows, series airing today.
+
+TheMovieDB API is more secured, coming with a SSL version and it is filtered by an api key which can get banned if the information requested is not used according to their policy. In addition, there is an upper limit for requests - 40 API calls each 10 seconds. When the limit is reached, a 429 HTTP status with a "Retry-After" header is returned. Therefore, the system must be as efficient as possible when it comes to third party API requests number. 40 requests every 10 seconds might seem a sufficient amount, but a system which is supposed to handle without problems thousands of users must reduce the number of requests as much as possible to avoid freezings and even crashes.
+
+Finally, another decisive reason that makes TheMovieDB.org's API more suitable for this system is the JSON format, which is the same format that NodeJS and MongoDB work with. There is no conversion necessary at any point in the system, so it is highly efficient than having to import the data in XML format, as in the case of TheTVDB.
+
+\subsection{Types of Databases}
+
+Since the 80s, database systems based on the relational model have dominated the industry with various implementations, starting with Oracle and finishing with MySQL. However, with the great technology evolution over the last few years, this model has not proven to cope very well with large amounts of information, as seen in \cite{10}. Companies like Google with millions of accounts, each one with a huge amount of data (mail, calendar, chrome extensions, browser history, etc.) which has to be stored faced the relational model's scalability problem. \textit{Figure \ref{fig:bigdata}} shows what Big Data is composed from and how the necessary storage space went from Megabytes to Petabytes by increasing the complexity of the systems.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1.0\textwidth]{figures/bigdata}
+\caption{Reaching Big Data by increasing Data Variety \& Complexity \newline Source: http://hortonworks.com/blog/7-key-drivers-for-the-big-data-market/}
+\label{fig:bigdata}
+\end{figure}
+
+The solution to this problem is represented by the non-relational databases, NoSQL. This new type of databases are able to cope with large-scale data processing and can store large volumes of data.
+
+There are many types of NoSQL databases, depending on the way of storing information (document-based databases, key-value databases or column-oriented databases), but the one suitable for this kind of system is the document-based way of storage information. This kind of databases are able to store hundreds of attribute-value pairs in a single column, therefore being capable to easily handle the large amount the TV Shows, episodes, descriptions and users profiles.
+
+Consequently, our choice will be MongoDB \cite{11}, an open-source and schema free document oriented database system.
+
+\section{Server-side environment}
+
+Such a complex system, which integrates a mobile application, a web application and a browser extension needs a server to handle all the input and output and to properly interact with the database.
+
+There is a large pool to choose from regarding the web server. It includes names such as Apache Tomcat, Node.JS or Rails. As we are working with big amounts of information and large flows of inputs and outputs, a fast and reliable server that can cope with big data is required. According to the official website \cite{12}, Node.JS is "a platform built on Chrome's JavaScript runtime for easily building fast, scalable network applications”. Due to its non-blocking asynchronous I/O, Node.JS is much faster than most of the other web server possibilities, being able to run multiple tasks at the same time. Moreover, it is known for its compatibility with MongoDB, our choice for the database system.
+
+Robert Ryan McCune from the University of Notre Dame wrote a study \cite{13} over the Node's efficiency and ability to handle high loads of requests. The benchmark tests compare Node.JS, EventMachine and Apache response times with 1000 and 10,000 requests. According to the author, Node.JS "outperformed the competition in these experiments". Pictures presented in \textit{Figure \ref{fig:nodert}} show the evolutions of the three web application environments, using 1 and 2 cores, over different amounts of request and concurrent requests.
+
+\begin{figure}[h]
+\centering
+\captionsetup[subfigure]{justification=centering}
+\begin{subfigure}[t]{0.32\textwidth}
+    \includegraphics[width=\textwidth,height=3cm]{figures/node_rt_1k} 
+    \caption{1k requests\\[1ex]100 concurent}
+    \label{fig:nodert1k}
+\end{subfigure}
+\begin{subfigure}[t]{0.32\textwidth}
+    \includegraphics[width=\textwidth,height=3cm]{figures/node_rt_10k}
+    \caption{10k requests\\[1ex]500 concurent}
+    \label{fig:nodert10k}
+\end{subfigure}
+\begin{subfigure}[t]{0.32\textwidth}
+    \includegraphics[width=\textwidth,height=3cm]{figures/node_rt_10k2}
+    \caption{10k requests\\[1ex]100 concurent}
+    \label{fig:nodert10k2}
+\end{subfigure}
+
+\caption{NodeJS benchmark tests, \newline Source: Robert Ryan McCune, "Node.js Paradigms and Benchmarks"}
+\label{fig:nodert}
+\end{figure}
+\section{Recommender system}
+
+When it comes to the recommender system, a lot of work has been previously done and there is a large variety of approaches available in this direction.
+
+Researchers tried to anticipate the customer's TV content preferences long before the online TV series. Recommender systems were necessary even when the only available way of watching TV content was live, on the television. In 2000, seven researchers from Philips Research wrote a paper \cite{15} about a recommender system based on the Bayesian Classifier approach to calculate the likelihood that the customer will like or dislike a particular new TV program, depending on the previous watching list and a set of attributes assigned to each already watched program. If the whole show has been watched, the attribute is positive, otherwise, negative. The system predicts to which one of the two Bayesian classes - positive and negative - a new, unwatched, TV program belongs to, by computing conditional probabilities, based on priors assigned to the attributes.
+
+Another approach is to compute the recommendations using the vectors similarity calculated using cosine distance, as \cite{Cosinus} describes. If U is the user profile vector which contains K topics or keywords and V is the TV series's vector, the similarity can be easily calculated using the formula mentioned below. However, this method is not feasible as the system needs to be as automatised as possible, keeping the interaction with the user low - thing that would be impossible if a topic vector would be necessary for the recommender to work properly.
+
+\textit{similarity}: cos(\theta) = \frac{U \cdot V}{\parallel U \parallel \parallel V \parallel},
+
+where the dot represents the scalar product of the two vectors.
+
+However, the most successful existing recommender system, owned by Netflix, is based on two different algorithms, the most important one involving Matrix factorisation, rather than classic nearest-neighbour techniques. As Netflix Prize challenge demonstrated \cite{np}, Matrix factorisation has better prediction performances than any other technique.
+
+At the moment, Netflix combines two algorithms to compute its recommendations, Restricted Boltzman Machines (RBM) and a form of Matrix Factorization. Firstly, the users are separated into groups by various, not public, criteria. These criteria can range from watching list, search history, social media activity, personal preferences and others; they are not known, but Netflix users are separated into "clusters" with same habits and preferences.
+
+To do so, the system uses the former mentioned algorithm, RBM, which is a generative stochastic artificial neural network. In machine learning, artificial neural networks (ANNs) are a family of models inspired by biological neural networks (the central nervous systems of animals, in particular the brain) which are used to estimate or approximate functions that can depend on a large number of inputs and are generally unknown. Artificial neural networks are generally presented as systems of interconnected "neurons" which exchange messages between each other. The connections have numeric weights that can be tuned based on experience, making neural nets adaptive to inputs and capable of learning \cite{Neural}.
+
+Translated into the recommendation system, this method provides the above mentioned clusters, in the form of a bipartite graph \textit{(figure \ref{fig:rbmgraph})} between the users and their preferences, giving different weights for their preferences. 
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.5\textwidth]{figures/rbm_graph}
+\caption{Restricted Boltzmann Machine bipartite graph \newline Source: https://en.wikipedia.org/wiki/Restricted\_Boltzmann\_machine}
+\label{fig:rbmgraph}
+\end{figure}
+
+
+Finally, the Matrix factorisation algorithm comes in. The rows of the matrix are represented by the users which are sharing the same group assigned by the first algorithm, while the columns are the shows that are being predominantly watched inside the group. The algorithm uses a form of singular value decomposition (SVD) \cite{svd} which factorises a real matrix M (m x n) as a product U * S * V, where:
+
+\begin{itemize}
+    \item U is a m x m unitary matrix
+    \item S is a m x m diagonal matrix with non negative  entries
+    \item V is a n x n unitary matrix
+\end{itemize}
+
+It is expected, but not known, that the values in the table are represented by the average of the ratings that the users gave the shows' episodes, or 0, when a certain user is not watching the show yet.
+
+After the algorithm runs, the values of 0 become the predicted rating that the user would give to the show if he was watching it. Then, the predicted values are sorted descending and the top results are pushed to the user as recommendations.
+
+A complex blend of these algorithms has been put together by the winning team of the Netflix Prize, "BellKor's Pragmatic Chaos" in 2009, presented in \cite{belkor}. The aim of the contest was to improve their previously used system, Cinemateca and the team managed to obtain a 10.06\% improvement, achieving a root mean square error RMSE of 0.8567 on the test subset. 
+It has to be mentioned that the contest took place over a long period of time (about 3 years) and it is one of the most accurate recommender systems on the market at this moment.
+
+\section{Evaluation \& testing}
+
+\subsection{Evaluation}
+
+The evaluation of the system consists of a multitude of criteria - efficiency, scalability, recommender system's performances, resources used on different workloads and others. The evaluation must be done in production and should be split in two distinct stages - short term and long term, as the server should not, but might have problems handling very large amount of data continuously generated by a large number of users.
+
+The efficiency of the system is given by the response time of the API in full-load, the simplicity of the database schemas and the minimum possible number of requests sent to TheMovieDB's API. However, a long term efficiency report is necessary because the performances of the server might change when the amount of information becomes larger. Moreover, this report will also show the scalability of the system, as it is built to be able to process a growing amount of work.
+
+When it comes to the recommender system's performances, it is more difficult to evaluate it properly because it needs a considerable number of users in order to be able to split them into smaller, common groups and then have a complex enough matrix to run the Matrix factorisation algorithm on top of it. However, once the prediction system gets enough training data, some popup boxes asking the user for an opinion over various features of the system, including the precision of the prediction system, can be implemented.
+
+The resources used will also vary according to the popularity of the system. The bigger it gets, the more resources it will require. However, Heroku \cite{heroku} provides a nice panel with resource statistics for the applications deployed there, hence the evaluation is possible.
+
+Finally, there are the system requirements specified at the beginning of the current chapter which are expected to be accomplished.
+
+\subsection{Testing}
+
+The testing is one of the most important parts in developing a complex system like this one. The API functions must be tested for security breaches and a large variety of inputs must be executed in order to discover possible uncaught errors thrown by the controllers that might lead to a whole NodeJS server crash.
+
+Thus, various scalability tests will be run in order to be sure that the server will not crash on massive workloads - for example 1500 register account requests and 1000 other requests, all simultaneously sent.
+
+Also, the integration with the front end side of the project must be done carefully, because some components might raise security issues. For instance, the login credentials are sent through a POST request and a session is created in the browser and held in a cookie. Therefore, the features of the system have to be taken one by one and tested properly to avoid security breaches and uncaught errors.

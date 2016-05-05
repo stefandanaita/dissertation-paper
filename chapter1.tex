@@ -1,0 +1,65 @@
+\chapter{Introduction}
+
+\section{Background}
+
+Watching movies and lately TV Shows has been a hobby for most of the people for many decades now. TV Series became so popular not only between the teenagers, but also between adults, as a result of the more and more complex and intriguing scenarios often inspired by successful books, fact proved by the most popular TV Series, Game of Thrones \cite{1}, which has more than 8 millions viewers only in the United States and a current average of 18 millions viewers worldwide.
+
+Although most of the TV Series are firstly aired on television, more and more people prefer to watch the episodes online, either on their laptop, tablet or even mobile device. Companies like Amazon or Netflix started to create their own series available only on their platforms or third-party sources and because of this large variety of sources providing access to various shows, people tend to lose track of what episodes are already watched or when and where the new ones will be available.
+
+With the great development of portable devices during the last ten years, watching movies or TV series is not a home-only activity anymore. People are very busy, but they have time windows all over the day. Commuting, waiting for an appointment, even having lunch or cooking dinner are activities which do not require maximum focus. But these windows are very limited, most of them shorter than an hour and therefore the time spent trying to remember the next episode due to watch or where to find it has to be minimised.
+
+\section{Project aims and objectives}
+
+The abstract aim of this project is to improve the viewer's experience while watching movies or TV shows, no matter where, when and on what kind of device they are doing it.
+
+The concrete objective is to design and implement a multi-component system with an attractive and comfortable user-interface, compatible with as many devices as possible, while still having many capabilities. Besides the ability of keeping track of the movies and TV shows for each user, the system should also be able to automatically detect what the user is currently watching and mark it as seen after the viewer finishes. Also, the system will be able to give personalised suggestions to the user based on many information sources and patterns.
+
+Being quite a complex system to design and implement, it has been split between two students, each of us having our individual part. My work on this project is represented by the core of the system, the web server. This includes the web application's back end, the database design for the whole system and the recommender system.
+
+My teammate, Bogdan Paul Bujor, has to design and implement the web application's front end, the web browser extension which gathers information from the user's browser to automatically check seen episodes or movies and the mobile application developed using the PhoneGap. This framework is mainly preferred due to its ability to run on most of the available mobile platforms without developing different applications for each of them.
+
+The connection between the server-side and the client-side of the system will be made through a RESTful API. To ensure that everything will fit together and to avoid overlaps, the API section of the system requires some team work.
+
+\section{Web server aims and objectives}
+
+This part of the system can be split into three principal categories: acquiring data, storing and handling it and, finally, retrieving information. A lot of research has been done in order to find the most suitable option for each category from the ones available at the moment.
+
+Each category has been briefly described below, but more information is provided in the following chapters.
+
+\subsection{Acquiring data}
+
+The system has two main sources of information - the user and the external TV series database.
+
+The user communicates with the system only through POST requests to the API, no matter if he is using the website, the mobile application or the browser extension. This increases the security and the maintainability of the system.
+
+The communication with the external TV series database is automatically done through their API. Various API calls are either scheduled, in order to balance the number of requests sent to the external API over a longer period of time, or triggered by user actions. Either way, the number of requests sent to the third party API has been minimised in order to improve the response time of the system.
+
+\subsection{Storing and handling information}
+
+There was a large variety of web servers available to choose from, but, amongst other needs, a robust and reliable server against large amount of data and requests was necessary for the system to be scalable. Moreover, there were not any large computations to be executed which could have raised problems to a NodeJS server and, as a result, NodeJS was opted for in the detriment of Tomcat or Rails, the other possible choices considered.
+
+Finding the best option for storing information represented a big challenge, especially because each of SQL and NoSQL types of databases has its own advantages and disadvantages that might influence the feasibility and scalability of the system.
+
+One of the most important criteria of choosing the type of database was that the most substantial amount of information which needs to be stored is represented by the TV series data, which does not have a fixed design - for instance, there are shows which do not have updated posters or description for each episode or even the cast information is completely missing. Therefore, after a more complex reasoning presented in the following chapters, a NoSQL type of database seemed to be the most reasonable choice.
+
+\subsection{Information retrieval}
+
+Retrieving the data requested represented another challenge in designing the system, especially since the involvement of a third party system represents a dependency for the application to work properly. The interaction with the external API had to be minimised as much as possible, so that, if an unexpected downtime were to happen, the system would still be reliable.
+
+The information requested is, then, delivered to the user only through the same API used to receive input. Having a single I/O interface, the JSON API which is compatible with the majority of the available frameworks, represents a great improvement to the system's scalability - more components or even other systems can be easily built on top of the existing web server, without having to make any major adjustments.
+
+In the 3rd and 4th chapters is presented a detailed version of the reasoning that led to the decisions mentioned above.
+
+\section{Report overview}
+
+The following chapter consists of a survey of the literature relevant to the main subjects of this project, highlighting the most important existing systems, comparing the technologies used in previous works and their outcome.
+
+The 3rd chapter defines in detail the requirements of the solution that is expected to be developed and the procedures used to test and evaluate the final system in order to determine its accomplishment. In this chapter various options for the web server, database, recommender system and TV series information source are compared.
+
+The next chapter covers the design of the solution based on the requirements mentioned in the 3rd chapter, as well as the final choices of technologies used for the system's components. It includes diagrams, database schemas and more in depth information of how the system achieved a higher level of efficiency because of the technologies that have been chosen.
+
+Chapter 5 presents the whole implementation process, from the web server installation to the final deployment and integration with the front end. The issues encountered during the implementation are highlighted, along with some of the limitations of the system.
+
+The 6th chapter presents the results and the performance of the solution implemented, as well as the limitations and the areas where future improvements are feasible and what these would involve.
+
+The final chapter is a conclusion of the entire project, it gives an overview of the features that have been implemented and acknowledges the existing limitations. Moreover, some suggestions for future improvement will be given.

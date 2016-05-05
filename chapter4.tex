@@ -1,0 +1,230 @@
+\chapter{System design}
+
+The system was divided into three main components - the web server at the centre of the system, the database and the TV series information, imported from the 3rd party API. The server is the core part that connects the other two components and also links the back end and the front end through the JSON API.
+
+\section{Working plan \& system overview}
+
+\subsection{Waterfall model}
+
+The approach chosen for this project's development consists of the steps from the Waterfall model, presented in \textit{Figure \ref{fig:waterfall}}.
+
+\begin{figure}[h]
+\caption{Waterfall model \newline Source: https://en.wikipedia.org/}
+\centering
+\includegraphics[width=1.0\textwidth]{figures/waterfall}
+\label{fig:waterfall}
+\end{figure}
+
+The development went according to the model presented above. The list of requirements has been discussed between the team members, then the system has been split in two big components: the back end and the front end.
+
+Afterwards, the design of the back end started with the most important features that the system was required to have (e.g: user system, its own database, automatised TV series import and others). Once the architecture of the system was clearly stated, the implementation was the next big step and it will be presented in the next chapter of the report.
+
+\subsection{System flow charts}
+
+The goal of this section is to present the whole system's links and components for a better understanding of what is happening and how each component communicates with another in order to deliver a continuous data flow.
+
+\begin{figure}[h]
+\caption{System's main components}
+\centering
+\includegraphics[width=1.0\textwidth]{figures/system_flow}
+\label{fig:systemflow}
+\end{figure}
+
+\section{API functionabilities}
+
+Together with my team mate, the system was designed to satisfy the user's needs and to be achievable in the available amount of time. The system's functionalities were split into categories according to the requirements previously specified and the front end components' interfaces.
+
+\subsection{User account specific functionabilities}
+
+This category covers all the necessary features for the user accounts system to work properly and satisfy users' needs (e.g: password changes, newsletter subscription update).
+
+\begin{itemize}
+    \item Account registration\\[1ex] http://localhost:3000/api/signup - POST request consisting of the user account's information (e.g: name, e-mail, date of birth and others).
+    \item Account login/logout\\[1ex]
+    http://localhost:3000/api/login - POST request containing the login credentials.\\[1ex]
+    http://localhost:300/api/logout - GET request which closes the session.
+    \item "Is logged in?" feature\\[1ex] http://localhost:3000/api/isLoggedIn - GET request which returns either a 401 Unauthorised HTTP Code if there is no active session or the logged in user's account information.
+\end{itemize}
+
+\subsection{TV Shows related features}
+
+This category contains quite a large amount of available HTTP routes due to the RESTful API. Therefore, in order to keep the report simple and easy to read, the available request types for each feature will be specified using an array (e.g: [GET, POST, DELETE]) followed by a short description of the feature.
+
+\begin{itemize}
+    \item http://localhost:3000/api/shows - [GET, POST, PUT] - Used to retrieve the list of all shows from the database, import a new show or update an existing one. Once imported, the show can only be updated through the PUT request.
+    \item http://localhost:3000/api/shows/:id - [GET] - Used to retrieve a specific show from the database.
+    \item http://localhost:3000/api/shows/search - [POST] - The requests body contains the search query and returns a list with the shows containing the query string inside their name.
+\end{itemize}
+
+\subsection{User profile specific functionalities}
+
+\begin{itemize}
+    \item http://localhost:3000/api/users/:user\_id/profile -
+    [GET, PUT] - Used to retrieve or update user's profile information.
+    \item http://localhost:3000/api/users/:user\_id/friends - [GET, POST, DELETE] - Used to retrieve the friends list, request a new friendship or delete a friend.
+    \item http://localhost:3000/api/users/:user\_id/friends/:friend\_id - [GET] - Used to retrieve a friend's public information (e.g: following list, watched episodes, watching percentages and others).
+\end{itemize}
+
+\subsection{Features that link users to TV Series}
+
+\begin{itemize}
+    \item http://localhost:3000/api/users/:user\_id/shows - [GET, POST, DELETE] - Used to get the entire following list and to follow or unfollow a certain TV show.
+    \item http://localhost:3000/api/users/:user\_id/shows/:show\_id/episodes - [GET, POST, DELETE] - Used to retrieve all episodes from a show which are marked as watched and watch/unwatch an episode.
+    \item http://localhost:3000/api/users/:user\_id/upcoming - [GET] - Used to get user's upcoming shows within a number of days (e.g. next 7 days). The number of days must be specified in the request's parameters.
+    \item http://localhost:3000/api/users/:user\_id/recently - [GET] - Used to retrieve the list of episodes that the user has recently watched, within a specific number of days which has to be stated as a parameter.
+    \item http://localhost:3000/api/users/:user\_id/recommendations - [GET] - Used to retrieve the recommended shows for a certain user.
+    \item http://localhost:3000/api/users/:user\_id/calendar - [GET] - Used to retrieve the episodes which have the airing date in the month specified as a parameter (e.g: all the followed shows episodes airing this April).
+\end{itemize}
+
+\subsection{Other features}
+
+Amongst those mentioned above, the design of the system required other features that only support some of the front end's components, but are not very important on the server side because they only represent a link between the database and the front end.
+
+For instance, the browser extension needs to store the URLs of the webpages that the user either marked 'to be ignored' or 'to be checked by the extension'. As a result, when a website from the stored list is accessed again, the extension will not expect any input from the user anymore.
+
+\section{Acquiring information design}
+
+As mentioned in the previous chapters, there are two available sources of information - the user and TheMovieDB.org's API for the TV series data.
+
+\subsection{User input}
+
+The information provided by the user is transmitted to the server using Ajax calls. The front end is based on ReactJS and Redux, frameworks that can easily handle asynchronous requests. We have chosen to use asynchronous calls, instead of the classic form that required the user to explicitly submit it in order to transmit the information back to the server, for a smaller response time and an improved user experience.
+
+\subsection{TheMovieDB.org API}
+
+In order to be able to use the API, a private key is required. To get the key, it is necessary to register on http://themoviedb.org and request one from the personal account page. The API is completely free of use and there are no forms that need to be completed before the access is granted. However, the terms of use are clearly stated and if the API is not used accordingly - for example, the limit of requests is constantly trying to be exceeded, the key might get revoked.
+
+\begin{wrapfigure}{L}{0.15\textwidth}
+\caption{TMDB API Introduction}
+\centering
+\includegraphics[width=0.15\textwidth, height=5cm]{figures/tmdb_api_introduction}
+\label{fig:tmdbapiintroduction}
+\end{wrapfigure}
+
+TMDB's API is developed on the Apiary \cite{16}, a platform specially created for API implementations, which provides a nice and user-friendly documentation. The introduction of the documentation \textit{(Figure \ref{fig:tmdbapiintroduction})} provides information about the terms of use, formats, libraries, request rate limits \& status codes, parameters required (e.g: api\_key) and available languages. The well-written documentation represented an important reason why this API has been chosen instead of TheTvDB, mentioned in the second chapter.
+
+Moving to the API's functionalities, there are many more features that are provided, besides the TV shows section which is the "key" of this project. There are even more accessible details, such as movies, companies, credits, actors and even available jobs inside the cinematography industry.
+
+When it comes strictly to TV series, a large variety of functions that make the implementation of the system easier and more efficient are available.
+
+The return of the API is a well organised JSON string which is almost matching with the MongoDB schema used to store the TV series information in our system's database.
+
+\textit{Figure \ref{fig:tmdbraw}} presents the raw JSON returned for the show with the id 1396 - "Breaking bad". \textit{Figure \ref{fig:tmdbjson}} contains the formatted version of the output for the first season of the "Breaking bad" series. Only the first episode is expanded in order to save space, but every episode contains vital information (e.g: air date, name, overview, ratings), as well as the crew list (e.g: writers, directors, editors) and guest stars which appeared in that episode.
+
+\begin{figure}[h]
+\caption{TheMovieDB's API TV Show data return (raw)}
+\centering
+\includegraphics[width=1.0\textwidth]{figures/tmdb_raw}
+\label{fig:tmdbraw}
+\end{figure}
+
+\begin{figure}[h]
+\caption{TheMovieDB's API TV Season data return (formatted)}
+\centering
+\includegraphics[width=1.0\textwidth]{figures/tmdb_json}
+\label{fig:tmdbjson}
+\end{figure}
+
+The information is asynchronously acquired through the API, which decreases the response time of the application, then edited in controllers and saved in the local Mongo database.
+
+\section{TV Series import approach}
+
+\begin{wrapfigure}{L}{0.25\textwidth}
+\centering
+\includegraphics[width=0.25\textwidth,height=3.5cm]{figures/tmdb_changes}
+\caption{TMDB's 'Changes'}
+\vspace{-2em}
+\label{fig:tmdbchanges}
+\end{wrapfigure}
+
+As previously mentioned, the number of requests sent to the external API has to be minimised. Thus, a request is sent only when it is absolutely necessary.
+
+To avoid making unnecessary calls, each show is stored in our Mongo database as soon as an user is searching for it. Afterwards, every time that show is searched for, the return will come from the local database instead of calling the API.
+
+However, to keep the shows up to date, further requests must be sent. The server will analyse the workload and whenever there are many requests remained unused below the limit of 40 requests each 10 seconds, it will automatically call the 'changes' function of the API (/tv/:show\_id/changes) to check if there is any change schedule in the series' structure (e.g: new season, new episode). If that is the case, the show will be then re-imported. \textit{Figure \ref{fig:tmdbchanges}} represents an example output of the 'changes' API feature.
+
+\section{Information storage}
+
+Being a NoSQL type of database, Mongo uses collections of documents instead of classic sequential tables. As it will be described in more details in the following chapter, a node package module called 'Mongoose' has been used to integrate MongoDB in the system.
+
+\begin{wrapfigure}{r}{0.25\textwidth}
+\centering
+\includegraphics[width=0.25\textwidth]{figures/mongoose_schema}
+\caption{TV Show schema}
+\vspace{-2.5em}
+\label{fig:mongooseschema}
+\end{wrapfigure}
+
+Mongoose \cite{17} package provides a straightforward implementation of MongoDB inside a NodeJS core application using a schema-based design. \textit{Figure \ref{fig:mongooseschema}} presents the schemas used for the TV show model. For a better readability, separate schemas have been used for a season and an episode, then combined together to create the model.
+
+The structure of the model matches the structure of the TMDB API for efficiency reasons. Having the same architecture and same field names saves time and memory by preventing the necessity of many operations - creating a new object, populating it with data from the API returned object and then saving the object using Mongoose.
+
+\begin{wrapfigure}{r}{0.3\textwidth}
+\centering
+\vspace{-2em}
+\includegraphics[width=0.3\textwidth]{figures/mongoose_following}
+\caption{"Following" schema}
+\vspace{-2em}
+\label{fig:mongoosefollowing}
+\end{wrapfigure}
+
+"Following" is another model which is used to store users' activity in the system. \textit{Figure \ref{fig:mongoosefollowing}} represents the schema on which this model is based on. To reduce the memory usage and avoid redundancy, the amount of information stored has been kept as little as possible. Each user is assigned a document in the "Following" collection which contains the user\_id and two different arrays - shows and episodes.
+
+Whenever the user adds a new show to the following list, a new element, containing the show\_id and the following\_date which is automatically populated, is pushed to the shows array. The same approach is used to mark episodes as "seen", but more information is being pushed to the array's element. For each episode, its id and its show's id is saved, together with a rating value which, by default, is null and with the timestamp of the moment when the episode has been marked as seen.
+
+\section{Information retrieval}
+
+The requests that come from the front end components are going through the Express's router which matches them with the right controller functions. \textit{Figure \ref{fig:routes}} shows an example of three routes and how they are assigned to different functions from different controllers.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1.0\textwidth]{figures/routes}
+\caption{Routes pointing to controller functions}
+\label{fig:routes}
+\end{figure}
+
+After the request is paired with a controller function, relevant data is retrieved from the database using Mongoose, it is processed and returned as JSON.
+
+\section{Recommender system}
+
+In the second chapter, some recommender systems have been analysed, ranging from older ones - 1998, TV Advisor – to some more recently developed. One of the most powerful such system is the one currently used by Netflix, described in details in the third chapter. To summarise, it starts by dividing users in ‘clusters', based on similar habits or similar viewing preferences, then performs a matrix factorization algorithm to predict a possible rating a user for a specified category will give to some random show.
+
+Of course, their algorithms are extremely complex and are capable of handling data from millions of users - figures show that 50 million people had subscriptions in 2014 – over a short period of time. They use methods such as collaborative filtering, a form of matrix factorization with temporal dynamics, blending techniques for smoothing the data and some additional mining algorithms, as shown in \cite{np}
+
+On a much smaller the system implemented in this project will consist of two main steps: 
+\begin{itemize}
+    \item Divide the users into groups according to common features. For simplicity, we will group them according to a common category of shows they are mostly watching. Increasing the number of common features in a group, for instance adding social media activity, search history or location will increase the efficiency
+    \item Use an algorithm for Matrix Factorisation in order to make predictions for a certain category, using the method of collaborative filtering.
+\end{itemize} 
+
+\subsection{Finding the common groups}
+The information retrieved from the TheMovieDB.org's API contains the genre for every show; hence the shows are already grouped together.
+
+The next part to consider is how to form the matrix. Here there are many issues that need closer consideration, as they will have a big impact on the final results. Firstly, the matrix dimensions must be reasonable, since otherwise the matrix factorisation algorithm might take too long to run. Again, we do not know yet what reasonable means here, as it depends on the running time of the algorithm and how often do we intend to update the prediction list for one user. Secondly, there would be the matter of how the matrix dimensions change when a new user creates an account or becomes part of a new category.
+
+For a given category, for instance ‘mostly action', the rows of the matrix A will be the users and the columns will be the shows of action genre. The entry (i,j) of the matrix represents the rating user i has given to show j – this is computed as the average of the ratings that user i has given to the episodes of show j, where ratings of episodes are integer ranging from one to five. If the user has not seen show j yet, the entry will be 0.
+
+Such a matrix will be defined for each of the categories, noting that one user can be in more than one group.
+
+Once we have the final form for the matrix A, we can proceed to the second step, the Matrix Factorisation \textit{(figure \ref{fig:matrixfactorisation})}.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1.0\textwidth]{figures/matrix_factorisation}
+\caption{Matrix factorisation \newline Source: http://www10.org/cdrom/papers/519/node6.html}
+\label{fig:matrixfactorisation}
+\end{figure}
+
+\subsection{Matrix Factorisation using Likely npm}
+
+% insert reference, https://www.npmjs.com/package/likely
+
+Likely npm \cite{liekly} is a recommendation engine for Node.js applications which is based on collaborative filtering, one of the methods mentioned above in the Netflix system. 
+
+The underlying assumption of collaborative filtering is that if person A has the same opinion as person B on an issue, then person A is more likely to have the same opinion as person B on a different issue, x, than to have the opinion of a randomly chosen person. \cite{cf}
+The 0 entries of the given matrix, corresponding to the event that a user has not watched that specific show, are estimated based on the ranking given by people in the same category, who have seen it.
+
+To proceed, the algorithm factorises the given matrix A into the product P * Q, where P describes the properties of each user and Q describes properties of each rated show. P and Q are initialised as random matrices of sizes n x k and k x m respectively, where k - the number of features to learn - is globally defined at the beginning of the algorithm. The error threshold used is 0.0005 which, if reached, will stop the iterations immediately. A regularization factor is used to avoid over fitting, which means that the result of P * Q is not exactly the input matrix, but something very close to it. Starting with these random values for P and Q, the aim is to minimise the error over a number of iterations. To do so, the algorithm uses the method of Stochastic Gradient Descent - SGD \cite{sgd}. This is a stochastic approximation of the gradient descent method, which computes the minimum of a multi - variable function. It is based on the observation that a function decreases the fastest in the direction of the negative gradient. 
+The stochastic algorithm requires a ‘step size', also called learning rate, to ensure convergence of the iterative method.
+
+The Node package also has a built in function that handles the bias that could appear. It uses a fairly standard method of computing the overall mean score and the standard deviation for all rows and columns, then normalising the data and although the model is relatively simple, it should improve performances.

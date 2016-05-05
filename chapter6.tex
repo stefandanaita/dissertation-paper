@@ -1,0 +1,50 @@
+\chapter{Results and discussion}
+
+\section{Results}
+
+The scalability testing is the most important component of this section. Several benchmark tests have been performed using the approach previously mentioned and then the results have been analysed.
+
+\subsection{User registration benchmark test}
+
+\begin{wrapfigure}{l}{0.3\textwidth}
+\vspace{-1em}
+\centering
+\includegraphics[width=0.3\textwidth]{figures/terminal_users_reg}
+\caption{User signup benchmark test}
+\vspace{-5em}
+\label{fig:terminalusersreg}
+\end{wrapfigure}
+
+The system has been tested with various amounts of requests, from 1 to 1500 and the completion time has been noted and analysed. \textit{Figure \ref{fig:terminalusersreg}} shows the amounts of requests sent and the response time.
+
+\textit{Figure \ref{fig:usersreggraph}} shows how the time (milliseconds) increases when the amount of requests gets larger and larger.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.4\textwidth]{figures/usersreggraph}
+\caption{Requests - Time variation}
+\label{fig:usersreggraph}
+\end{figure}
+
+\subsection{TV Shows import benchmark test}
+
+The system is able to import 2 shows in less than a second and 5 shows in about 3 seconds. However, for larger number of shows which need to be imported, the system happens to crash due to the limit imposed by TheMovieDB - 40 requests every 10 seconds. This represents a current limitation of the system which can be fixed by making the server to wait until there are requests available again and then continue the import operation.
+
+\textit{Figure \ref{fig:importbenchmark}} shows the code used for this test. The system tries to import all the shows having the ids between the \textit{start} and the \textit{limit}.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.5\textwidth]{figures/importbenchmark}
+\caption{TV Shows import benchmark code}
+\label{fig:importbenchmark}
+\end{figure}
+
+\section{Discussion}
+
+The system can definitely be improved, especially the TV Shows importing approach and the recommender system's categorisation algorithm.
+
+The shows import is done asynchronously, which boosts the performance of the system. However, the API's requests limit represents a limitation at the moment. The server is able to import series very fast as long as the limit is not reached. Further development needs to be done so that the system can handle large amounts of import requests, but the limit will still slower the system, no matter if the requests are submitted synchronously or asynchronously.
+
+The recommender system is another component where further development is required. At the moment, it does not take into consideration which genres are predominant in the user's following list. For better predictions, a prior should be included in algorithm so that when the returned predicted arrays are combined, shows that belong to a genre that has the majority in the user's following list weights more than others.
+
+Overall, there are many other features that could be implemented but the time was not sufficient. Extended research is to be done afterwards, as we are planning to continue this project.

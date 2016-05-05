@@ -1,0 +1,216 @@
+\chapter{Implementation and testing}
+
+This chapter presents the implementation process of the system design previously described as well as issues and limitation encountered in the meanwhile. Moving on, various testing approaches are discussed towards the end of the chapter.
+
+\section{Overview}
+
+The implementation process has been separated into checkpoints so that nothing will get omitted during development. Without going at a very granular level, the following list represents the checkpoints that have been checked during this the system's development.
+
+\begin{itemize}
+    \item NodeJS installation, ExpressJS installation, web server setup;
+    \item MongoLab database setup, MongooseJS npm installation, database configuration;
+    \item PassportJS installation, configuration and required routes setup;
+    \item TV Shows import - TheMovieDB.org API integration;
+    \item API Functionalities (e.g: follow TV shows, upcoming episodes, recently seen episodes, statistics and many others);
+    \item Recommender system
+    \item Testing
+\end{itemize}
+
+The rest of the chapter will cover, in more detail, the implementation of each checkpoint presented above.
+
+\section{NodeJS, ExpressJS \& Web server setup}
+
+Before moving on to the code itself, there are some dependencies that must be installed on the machine so that the server will be able to run.
+
+\subsection{Node and NPM installation}
+
+NodeJS is free and available for each of the three most popular operating systems - Windows, Linux and Mac OSX. It can be downloaded from its official website \ref{12} and installed.
+
+Several issues might be encountered on Windows where the installation kit should be ran with Administrator rights, so that the Environment variables will be automatically set during the installation. If they are not set, Node will not be globally available and will not run if the Command line prompt location is not the Node installation root folder. However, there are many fixes available on StackOverflow in case of a similar problem.
+
+After NodeJS has been successfully installed, npm init has to be run in the project folder to initialise a new project. A file called package.json will be generated and it will contain vital meta-information for the application to run. Here are stored the name, description and author of the application, its version, the main JavaScript file which will be executed when the system is run and, most important, the list of dependencies that the system cannot run without. \textit{Figure \ref{fig:packagejson}} shows the content of the \textit{package.json} file used for this project.
+
+\begin{wrapfigure}{r}{0.25\textwidth}
+\centering
+\vspace{-2em}
+\includegraphics[width=0.25\textwidth]{figures/package_json}
+\caption{Node's \textit{package.json}}
+\vspace{-5em}
+\label{fig:packagejson}
+\end{wrapfigure}
+
+After the project has been initialised, it can be run by executing npm start command in the command prompt. For a better development experience and efficiency, a node package called "Nodemon" has been installed as a development dependency, as it can be seen in the last figure. Nodemon[18] is a tool which monitors the JavaScript files used by the server and anytime there is a change in one of the files, it restarts the whole server automatically.
+
+\subsection{ExpressJS \& file structure}
+
+Express is a NodeJS framework which provides several robust features for web applications and APIs, having a large variety of methods and middleware.
+
+\begin{wrapfigure}{l}{0.25\textwidth}
+\centering
+\includegraphics[width=0.25\textwidth]{figures/file_structure}
+\caption{Trakt.tv Recommendations \newline Source: https://trakt.tv/}
+\vspace{-3em}
+\label{fig:filestructure}
+\end{wrapfigure}
+
+It can be installed like any other node package, by executing Nam install express --save in the command prompt or terminal. The file structure of an Express-based system is not enforced, each developer having the freedom of organising the environment according to the personal preference and project necessities.
+
+This application's file structure is designed to tend to a classic MVC framework look, having the code separated into Models, Controllers and Routes. Being an API, this system did not require any usage of Views, since that part is covered by the front end component which is developed by my team mate.
+
+\textit{Figure \ref{fig:filestructure}} shows the file structure chosen for this system. The config folder contains the credentials.js file which is also stated in .gitignore in order to keep the secret keys safe. It also contains the configuration files for Mongoose and Passport, but these will be described later in this chapter.
+
+\section{MongoLab \& Mongoose integration}
+
+As previously described, Mongoose provides a simple, schema-based implementation of Mongo databases into NodeJS applications. However, a configuration file is still required. The configuration file contains the database's connection URL is specified, other node packages used together with Mongoose and the connection's initialisation. \textit{Figure \ref{fig:mongooseconfig}} shows the Mongoose's configuration file.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1.0\textwidth]{figures/mongoose_config}
+\caption{Mongoose's configuration file}
+\label{fig:mongooseconfig}
+\end{figure}
+
+Moving on, the schemas have been created as described in the previous chapter's figure, where the design of the TV Show model was presented. There are other models used by the system (e.g: User model, Recommendation model, Following model), but they are briefly described in their own dedicated sections of this chapter.
+
+From this point, Mongoose's methods do most of the work, because they are simple, intuitive (e.g: Model\_name.findOne(…), Model\_name.save(…) and others) and, most important, asynchronous, which makes them very suitable for this system, as the database gets quite large and the response time varies depending on the query.
+
+\section{PassportJS}
+
+PassportJS \cite{passport} is a node package that provides a very simple and reliable authentication middleware for NodeJS. Installation has been done using the node package manager by executing \textit{npm install passport --save}. Depending on which strategies the system requires, other packages need to be installed. Our server's account system is based on two strategies - local and Facebook accounts. Hence, \textit{passport-local} and \textit{passport-facebook} were installed as well.
+
+Passport's configuration file is situated in the \textit{config} folder. There is quite a large amount of code used to configure passport's strategies, but it follows step by step the documentation from the official website. %REFERENCE PASSPORTJS.ORG DOCUMENTATION
+However, we need to emphasise that inside the configuration file it is situated the code responsible with the "Sign-up" functionality, which also requires a collection into the database so that newly registered users' information can be stored.
+
+Moving on to the module's integration, some vital routes must be set in order to be able to use the authentication middleware. \textit{Figure \ref{fig:passportroutes}} shows the routes used for local accounts authentication operations.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1.0\textwidth]{figures/passport_routes}
+\caption{PassportJS specific routes}
+\label{fig:passportroutes}
+\end{figure}
+
+\section{TV Shows import, TMDB API integration}
+
+Before moving on to the actual import of a show's information, two more Node packages must be mentioned and briefly described.
+
+\subsection{Axios}
+
+Axios \cite{19} is a promise-based HTTP client for NodeJS which makes the request sending to the external API easy and straightforward. It provides several intuitive methods (e.g: axios.get(…), axios.post(…) and others) which require the two parameters - the URL where the request is going to be sent and a JSON object which contains the request's parameters.
+
+\begin{wrapfigure}{l}{0.5\textwidth}
+\centering
+\includegraphics[width=0.5\textwidth]{figures/axios}
+\caption{Axios GET request}
+\vspace{-1em}
+\label{fig:axios}
+\end{wrapfigure}
+
+All methods provided by Axios are asynchronously executed, so a callback function contains the return of the request. \textit{Figure \ref{fig:axios}} shows an example of a "GET" request sent to TheMovieDB API. The result is only available inside the callback function defined in .then(…), where another method, called importShow. The latter method receives the show's information via the only parameter, processes the information, then saves it in the database using the Mongoose's save method mentioned earlier.
+
+\subsection{Async}
+
+Async \cite{async} is a node package that provides powerful functions for working with asynchronous JavaScript. Its methods have been heavily used during this system's development in order to make the server more efficient. TV Shows importing operation required a combination of methods provided by Async.
+
+\subsection{TV Shows import approach}
+
+To import a TV series from TheMovieDB, the following steps must be accomplished in this exact sequence:
+
+\begin{enumerate}
+    \item Initialise a series of asynchronous functions with each one running once the previous one completed. This step is achieved using the \textit{async.series(...)} method provided by Async package;
+    \item The first function in the previously declared series represents the API request for the TV Show information;
+    \item Once the TV Show's data is returned, the number of seasons and the seasons' ids can be retrieved and sent to the second asynchronous function in the initial series;
+    \item The second function sends, in parallel, using the \textit{async.parallel(...)} method provided by Async package, a number of API requests equal to the number of seasons of the shows that is being imported;
+    \item Once all the show's seasons information is retrieved, the callback function of the asynchronous series is executed and it contains both the show's information retrieved at the second step and all seasons' data;
+    \item A new object is created by putting all the information together and it is saved to the database.
+\end{enumerate}
+
+It can be clearly seen the important role played by the Async package which boosts the system's performance by importing all seasons in parallel, instead of doing using a classic loop. The TV shows import function is situated in the \textit{shows.js} controller.
+
+\section{API Functionalities}
+
+The majority of the API's features are based on the information stored in the "Following" collection. As mentioned in Chapter 4, each user has its own document inside this collection.
+
+The document contains, besides the user's id, all the followed shows and the episodes watched. In addition, the followed show's genres and each of the ratings that user gave to each episode are also stored inside the document, but further explanation is given later in this chapter, when the recommender system's implementation is presented.
+
+\subsection{TV Show follow/unfollow}
+
+The previously mentioned document contains an array of JSON objects, \textit{shows}, each object consisting of the show's id, the following date and the show's genres. Every time the user follows a new show, a new object is pushed to this array. A search is being performed and a pull operation is executed whenever a show is unfollowed.
+
+\subsection{Episode watch/unwatch}
+
+The approach for marking an episode as watched or unwatched is very similar to the previous functionality presented - following/unfollowing a show. However, in this case, a rating number is stored for each episode marked as seen.
+
+Using the rating number mentioned above, the show's rating can be calculated as the average of all episodes' ratings. However, if the user does not provide a rating value for a certain episode, its rating variable will be set to \textit{null} by default and it will not be taken into consideration when the average rating is calculated.
+
+\textit{Figure \ref{fig:following}} shows the schema structure of the \textit{shows} and \textit{episodes} arrays.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.5\textwidth]{figures/mongoose_following}
+\caption{Followed shows \& Watched episodes Arrays}
+\label{fig:following}
+\end{figure}
+
+\subsection{Recently seen episodes \& other statistics}
+
+The list of episodes that the user has recently seen  is generated by taking the \textit{episodes} array, sorting it descending after the \textit{seen.date} field. After the array is sorted, the first element of the array will be the latest seen episode.
+
+Moving on to other statistics that, in the front end interface, are available inside the user's personal profile page (such as: number of episodes seen, number of shows followed, episodes percentage), they are also calculated using the user's unique document from the "Following" collection. For instance, \textit{figure \ref{fig:numberofepisodes}} contains the code that calculates the total number of episodes the user has to watch (the addition between the number of episodes watched and the number of those unwatched from all the followed shows).
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.6\textwidth]{figures/number_of_episodes}
+\caption{Total number of episodes calculation}
+\label{fig:numberofepisodes}
+\end{figure}
+
+\section{The recommender system}
+
+As described in Chapter 4, the recommender system design that has been chosen consists of three distinct stages.
+
+\begin{itemize}
+    \item Separating the users in categories of genres;
+    \item Run the Matrix factorisation algorithm, in parallel, over all categories;
+    \item Combine the results and output a recommendations list.
+\end{itemize}
+
+\subsection{User categorisation}
+
+The algorithm runs once for each TV shows genre in the database. If the user has followed at least one show which contains that genre, then that user is added into that genre's category. After the categories are established, the recommender proceeds to the next step.
+
+\subsection{Matrix factorisation}
+
+The matrix factorisation algorithm runs once for each category created at the first step. As previously mentioned, the \textit{Likely} node package is used. The matrix will contain:
+
+\begin{itemize}
+    \item All the users in the category on its rows;
+    \item All the shows which contain that genre on its column;
+    \item The average rating each user gave to the corresponding show or 0 if the user doesn't follow the corresponding series on its cells.
+\end{itemize}
+
+\textit{Likely} returns a descending sorted array for each user containing the predicted ratings that the user would give to each show.
+
+\subsection{Processing the results}
+
+Each user will receive a number of predicted arrays equal to the number of categories he has been assigned to. For example, if an user is watching only thrillers and comedies, he will be assigned to two categories and Likely will return two arrays for this user.
+
+Then, the arrays are combined into a larger array which is sorted again. This array is then outputted.
+
+\section{Testing}
+
+The testing of the system has been split in three separate components - scalability testing, code testing and compatibility testing.
+
+\subsection{Scalability testing}
+
+To test if the system is scalable and its efficiency, a few benchmark tests have been performed. A separate NodeJS server has been used together with \textit{Axios} and \textit{Async} node packages.
+
+The API has been sent different amounts of requests on different URLS and the completion time has been calculated. The results will be presented in the following chapter.
+
+\subsection{Code testing}
+
+The code testing has been performed using \textit{Mocha} \cite{mocha}, a feature-rich JavaScript test framework for NodeJS.
+
+\subsection{Compatibility testing}
+
+This section's testing has been performed together with my team mate, making sure that the front end components send requests to the right NodeJS API URLs.
